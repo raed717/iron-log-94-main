@@ -1,5 +1,5 @@
 import { Exercise } from "@/types/workout";
-import { categoryColors } from "@/data/exercises";
+import { categoryColors } from "@/data/categories";
 import { Dumbbell, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

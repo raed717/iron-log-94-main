@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import WorkoutLogger from "@/components/workout/WorkoutLogger";
-import { exercises } from "@/data/exercises";
+import { useExercises } from "@/hooks/useExercises";
 import { Exercise } from "@/types/workout";
 import { ChevronLeft, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categoryColors } from "@/data/exercises";
+import { categoryColors } from "@/data/categories";
 
 const Workout = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { exercises } = useExercises();
 
   useEffect(() => {
     // Check for exercise in URL params
     const exerciseId = searchParams.get("exercise");
-    if (exerciseId) {
+    if (exerciseId && exercises.length > 0) {
       const exercise = exercises.find((e) => e.id === exerciseId);
       if (exercise) setSelectedExercise(exercise);
     }

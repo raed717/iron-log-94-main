@@ -1,5 +1,5 @@
 import { ExerciseCategory } from "@/types/workout";
-import { categoryColors } from "@/data/exercises";
+import { categoryColors } from "@/data/categories";
 import { cn } from "@/lib/utils";
 
 interface CategoryFilterProps {

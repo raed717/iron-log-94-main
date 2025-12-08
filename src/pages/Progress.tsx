@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import ProgressChart from "@/components/progress/ProgressChart";
-import { exercises } from "@/data/exercises";
+import { useExercises } from "@/hooks/useExercises";
 import { useWorkoutLogs } from "@/hooks/useWorkoutData";
 import { useExerciseStats } from "@/hooks/useStats";
-import { categoryColors } from "@/data/exercises";
+import { categoryColors } from "@/data/categories";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,7 @@ const Progress = () => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>("bench-press");
   const stats = useExerciseStats(selectedExerciseId);
 
+  const { exercises } = useExercises();
   const selectedExercise = exercises.find((e) => e.id === selectedExerciseId);
 
   // Get exercises with data

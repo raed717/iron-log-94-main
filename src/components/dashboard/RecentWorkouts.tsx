@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, Dumbbell, TrendingUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { exercises } from "@/data/exercises";
+import { useExercises } from "@/hooks/useExercises";
 import { cn } from "@/lib/utils";
 
 interface RecentWorkoutsProps {
@@ -12,6 +12,7 @@ type SetRow = { workout_log_id: string; weight: number; reps: number };
 type WorkoutLog = { id: string; exercise_id?: string; exerciseId?: string; created_at?: string };
 
 const RecentWorkouts = ({ logs }: RecentWorkoutsProps) => {
+  const { exercises } = useExercises();
   const [sets, setSets] = useState<Record<string, SetRow[]>>({});
   const [loading, setLoading] = useState(false);
 

@@ -11,6 +11,7 @@ import SignUp from "./pages/SignUp";
 import Exercises from "./pages/Exercises";
 import Workout from "./pages/Workout";
 import Progress from "./pages/Progress";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Progress />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/history"
+      element={
+        <ProtectedRoute>
+          <History />
         </ProtectedRoute>
       }
     />
