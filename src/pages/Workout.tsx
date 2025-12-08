@@ -23,13 +23,13 @@ const Workout = () => {
   const { exercises } = useExercises();
 
   useEffect(() => {
-    // Check for exercise in URL params
+    // Check for exercise in URL params and set once exercises are loaded
     const exerciseId = searchParams.get("exercise");
-    if (exerciseId && exercises.length > 0) {
-      const exercise = exercises.find((e) => e.id === exerciseId);
-      if (exercise) setSelectedExercise(exercise);
-    }
-  }, [searchParams]);
+    if (!exerciseId) return;
+    if (exercises.length === 0) return;
+    const exercise = exercises.find((e) => e.id === exerciseId);
+    if (exercise) setSelectedExercise(exercise);
+  }, [searchParams, exercises]);
 
   const handleExerciseSelect = (exerciseId: string) => {
     const exercise = exercises.find((e) => e.id === exerciseId);
