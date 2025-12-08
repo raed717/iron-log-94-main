@@ -121,6 +121,13 @@ export default function SignIn() {
                 Sign Up
               </Link>
             </p>
+            {/*add contribution link or message here*/}
+            <p className="text-center text-xs text-slate-500 mt-4">
+              Contribute to Iron-Log on{' '}
+              <a href="https://github.com/raed717/iron-log-94-main" target="_blank" rel="noopener noreferrer" className="underline">
+                GitHub
+              </a>
+            </p>
           </form>
         </CardContent>
       </Card>
