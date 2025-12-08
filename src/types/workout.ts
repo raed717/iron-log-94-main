@@ -2,7 +2,8 @@ export interface Exercise {
   id: string;
   name: string;
   category: ExerciseCategory;
-  muscleGroup: string;
+  muscle_group: string;
+  muscleGroup?: string; // Support both for backwards compatibility
   equipment: string;
   description?: string;
 }
@@ -18,17 +19,20 @@ export type ExerciseCategory =
 
 export interface WorkoutSet {
   id: string;
-  setNumber: number;
+  set_number?: number;
+  setNumber?: number;
   weight: number;
   reps: number;
-  completed: boolean;
+  is_completed?: boolean;
+  completed?: boolean;
 }
 
 export interface WorkoutLog {
   id: string;
-  date: string;
-  exerciseId: string;
-  sets: WorkoutSet[];
+  date?: string;
+  exercise_id?: string;
+  exerciseId?: string;
+  sets?: WorkoutSet[];
   notes?: string;
 }
 
@@ -65,4 +69,5 @@ export interface GlobalStats {
   currentStreak: number;
   longestStreak: number;
   weeklyWorkouts: number[];
+  previousWeeklyTotal?: number;
 }

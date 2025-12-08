@@ -3,8 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import WorkoutLogger from "@/components/workout/WorkoutLogger";
 import { exercises } from "@/data/exercises";
-import { generateMockWorkoutLogs, getLastWorkout } from "@/data/mockData";
-import { Exercise, WorkoutLog } from "@/types/workout";
+import { Exercise } from "@/types/workout";
 import { ChevronLeft, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,12 +18,10 @@ import { categoryColors } from "@/data/exercises";
 const Workout = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [logs, setLogs] = useState<WorkoutLog[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    setLogs(generateMockWorkoutLogs());
-
     // Check for exercise in URL params
     const exerciseId = searchParams.get("exercise");
     if (exerciseId) {
@@ -40,17 +37,10 @@ const Workout = () => {
     }
   };
 
-  const handleSaveWorkout = (log: Omit<WorkoutLog, "id">) => {
-    const newLog: WorkoutLog = {
-      ...log,
-      id: `log-${Date.now()}`,
-    };
-    setLogs([...logs, newLog]);
+  const handleWorkoutSaved = () => {
+    // Refresh to show updated data
+    setRefreshKey(prev => prev + 1);
   };
-
-  const lastWorkout = selectedExercise
-    ? getLastWorkout(selectedExercise.id, logs)
-    : undefined;
 
   // Group exercises by category
   const exercisesByCategory = exercises.reduce((acc, exercise) => {
@@ -159,9 +149,9 @@ const Workout = () => {
               </div>
 
               <WorkoutLogger
+                key={refreshKey}
                 exercise={selectedExercise}
-                lastWorkout={lastWorkout}
-                onSave={handleSaveWorkout}
+                onSaved={handleWorkoutSaved}
               />
             </div>
           </div>

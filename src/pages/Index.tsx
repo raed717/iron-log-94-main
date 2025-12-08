@@ -3,24 +3,36 @@ import Header from "@/components/layout/Header";
 import StatCard from "@/components/dashboard/StatCard";
 import WeeklyChart from "@/components/dashboard/WeeklyChart";
 import RecentWorkouts from "@/components/dashboard/RecentWorkouts";
-import { generateMockWorkoutLogs, generateMockGlobalStats } from "@/data/mockData";
-import { WorkoutLog, GlobalStats } from "@/types/workout";
+import { useGlobalStats } from "@/hooks/useStats";
+import { useWorkoutLogs } from "@/hooks/useWorkoutData";
+import { WorkoutLog } from "@/types/workout";
 import { Dumbbell, Flame, TrendingUp, Calendar, Zap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [logs, setLogs] = useState<WorkoutLog[]>([]);
-  const [stats, setStats] = useState<GlobalStats | null>(null);
+  const stats = useGlobalStats();
+  const { logs, loading } = useWorkoutLogs();
 
-  useEffect(() => {
-    // Load mock data
-    setLogs(generateMockWorkoutLogs());
-    setStats(generateMockGlobalStats());
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen pb-24 md:pb-8">
+        <Header />
+        <main className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <div className="text-slate-400">Loading dashboard...</div>
+        </main>
+      </div>
+    );
+  }
 
-  if (!stats) return null;
+  // compute week-over-week trend: compare last 7 days total to previous 7 days
+  const currentWeekTotal = stats.weeklyWorkouts?.reduce((a, b) => a + b, 0) || 0;
+  const previousWeekTotal = stats.previousWeeklyTotal || 0;
+  const trendPercent = previousWeekTotal > 0
+    ? Math.round(((currentWeekTotal - previousWeekTotal) / previousWeekTotal) * 100)
+    : (currentWeekTotal > 0 ? 100 : 0);
+  const trendPositive = trendPercent >= 0;
 
   return (
     <div className="min-h-screen pb-24 md:pb-8">
@@ -61,7 +73,7 @@ const Index = () => {
             subtitle="This month"
             icon={Dumbbell}
             variant="primary"
-            trend={{ value: 12, positive: true }}
+            trend={{ value: trendPercent, positive: trendPositive }}
             delay={100}
           />
           <StatCard

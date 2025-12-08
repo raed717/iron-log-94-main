@@ -1,21 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
 import ExerciseCard from "@/components/exercises/ExerciseCard";
 import CategoryFilter from "@/components/exercises/CategoryFilter";
-import { exercises } from "@/data/exercises";
-import { generateMockWorkoutLogs, getLastWorkout } from "@/data/mockData";
-import { ExerciseCategory, WorkoutLog } from "@/types/workout";
+import { useExercises } from "@/hooks/useExercises";
+import { ExerciseCategory } from "@/types/workout";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const Exercises = () => {
-  const [logs, setLogs] = useState<WorkoutLog[]>([]);
+  const { exercises, loading } = useExercises();
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    setLogs(generateMockWorkoutLogs());
-  }, []);
 
   const categories: ExerciseCategory[] = ["chest", "back", "shoulders", "arms", "legs", "core"];
 
@@ -23,10 +18,21 @@ const Exercises = () => {
     return exercises.filter((exercise) => {
       const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory;
       const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        exercise.muscleGroup.toLowerCase().includes(searchQuery.toLowerCase());
+        exercise.muscle_group.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [exercises, selectedCategory, searchQuery]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pb-24 md:pb-8">
+        <Header />
+        <main className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <div className="text-slate-400">Loading exercises...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24 md:pb-8">
@@ -69,7 +75,6 @@ const Exercises = () => {
             <ExerciseCard
               key={exercise.id}
               exercise={exercise}
-              lastWorkout={getLastWorkout(exercise.id, logs)}
               delay={index * 50}
             />
           ))}

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import ProgressChart from "@/components/progress/ProgressChart";
 import { exercises } from "@/data/exercises";
-import { generateMockWorkoutLogs, generateMockExerciseStats } from "@/data/mockData";
-import { WorkoutLog, ExerciseStats } from "@/types/workout";
+import { useWorkoutLogs } from "@/hooks/useWorkoutData";
+import { useExerciseStats } from "@/hooks/useStats";
 import { categoryColors } from "@/data/exercises";
 import {
   Select,
@@ -16,27 +16,15 @@ import { TrendingUp, Award, Target, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Progress = () => {
-  const [logs, setLogs] = useState<WorkoutLog[]>([]);
+  const { logs, loading } = useWorkoutLogs();
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>("bench-press");
-  const [stats, setStats] = useState<ExerciseStats | null>(null);
-
-  useEffect(() => {
-    const mockLogs = generateMockWorkoutLogs();
-    setLogs(mockLogs);
-  }, []);
-
-  useEffect(() => {
-    if (logs.length > 0 && selectedExerciseId) {
-      const exerciseStats = generateMockExerciseStats(selectedExerciseId, logs);
-      setStats(exerciseStats);
-    }
-  }, [logs, selectedExerciseId]);
+  const stats = useExerciseStats(selectedExerciseId);
 
   const selectedExercise = exercises.find((e) => e.id === selectedExerciseId);
 
   // Get exercises with data
   const exercisesWithData = exercises.filter((exercise) =>
-    logs.some((log) => log.exerciseId === exercise.id)
+    logs && logs.some((log: { exercise_id?: string; exerciseId?: string }) => (log.exercise_id || log.exerciseId) === exercise.id)
   );
 
   return (

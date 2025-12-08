@@ -5,15 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Plus, Minus, Check, Trash2, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useSaveWorkout } from "@/hooks/useSaveWorkout";
 
 interface WorkoutLoggerProps {
   exercise: Exercise;
   lastWorkout?: WorkoutLog;
-  onSave: (log: Omit<WorkoutLog, "id">) => void;
+  onSave?: (log: Omit<WorkoutLog, "id">) => void;
+  onSaved?: () => void;
 }
 
-const WorkoutLogger = ({ exercise, lastWorkout, onSave }: WorkoutLoggerProps) => {
+const WorkoutLogger = ({ exercise, lastWorkout, onSaved }: WorkoutLoggerProps) => {
   const [sets, setSets] = useState<WorkoutSet[]>([]);
+  const { saveWorkout, loading: saving } = useSaveWorkout();
 
   useEffect(() => {
     // Initialize with last workout data or default
@@ -68,22 +71,41 @@ const WorkoutLogger = ({ exercise, lastWorkout, onSave }: WorkoutLoggerProps) =>
     setSets(newSets);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const completedSets = sets.filter(s => s.completed);
     if (completedSets.length === 0) {
       toast.error("Complete at least one set before saving");
       return;
     }
 
-    onSave({
-      date: new Date().toISOString().split('T')[0],
-      exerciseId: exercise.id,
-      sets: completedSets,
-    });
+    const result = await saveWorkout(
+      exercise.id,
+      completedSets.map(s => ({
+        setNumber: s.setNumber || 1,
+        weight: s.weight,
+        reps: s.reps,
+      }))
+    );
 
-    toast.success("Workout logged successfully!", {
-      description: `${completedSets.length} sets saved for ${exercise.name}`,
-    });
+    if (result) {
+      toast.success("Workout logged successfully!", {
+        description: `${completedSets.length} sets saved for ${exercise.name}`,
+      });
+      
+      // Reset form
+      setSets([
+        { id: "new-0", setNumber: 1, weight: 20, reps: 10, completed: false },
+        { id: "new-1", setNumber: 2, weight: 20, reps: 10, completed: false },
+        { id: "new-2", setNumber: 3, weight: 20, reps: 10, completed: false },
+      ]);
+
+      // Call callback if provided
+      if (onSaved) {
+        onSaved();
+      }
+    } else {
+      toast.error("Failed to save workout. Please try again.");
+    }
   };
 
   const totalVolume = sets
@@ -237,8 +259,8 @@ const WorkoutLogger = ({ exercise, lastWorkout, onSave }: WorkoutLoggerProps) =>
         </div>
       </div>
 
-      <Button variant="power" size="lg" className="w-full" onClick={handleSave}>
-        Save Workout
+      <Button variant="power" size="lg" className="w-full" onClick={handleSave} disabled={saving}>
+        {saving ? "Saving..." : "Save Workout"}
       </Button>
     </div>
   );

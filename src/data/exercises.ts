@@ -7,6 +7,7 @@ export const exercises: Exercise[] = [
     name: "Bench Press",
     category: "chest",
     muscleGroup: "Chest",
+    muscle_group: "Chest",
     equipment: "Barbell",
     description: "Classic compound movement for chest development"
   },
@@ -15,6 +16,7 @@ export const exercises: Exercise[] = [
     name: "Incline Bench Press",
     category: "chest",
     muscleGroup: "Upper Chest",
+    muscle_group: "Upper Chest",
     equipment: "Barbell",
     description: "Targets upper chest fibers"
   },
@@ -23,6 +25,7 @@ export const exercises: Exercise[] = [
     name: "Dumbbell Fly",
     category: "chest",
     muscleGroup: "Chest",
+    muscle_group: "Chest",
     equipment: "Dumbbells",
     description: "Isolation movement for chest stretch and contraction"
   },
@@ -31,6 +34,7 @@ export const exercises: Exercise[] = [
     name: "Cable Crossover",
     category: "chest",
     muscleGroup: "Chest",
+    muscle_group: "Chest",
     equipment: "Cable Machine",
     description: "Constant tension chest isolation"
   },
@@ -39,6 +43,7 @@ export const exercises: Exercise[] = [
     name: "Chest Press Machine",
     category: "chest",
     muscleGroup: "Chest",
+    muscle_group: "Chest",
     equipment: "Machine",
     description: "Machine-assisted chest press"
   },
@@ -49,6 +54,7 @@ export const exercises: Exercise[] = [
     name: "Deadlift",
     category: "back",
     muscleGroup: "Back",
+    muscle_group: "Back",
     equipment: "Barbell",
     description: "King of all exercises - full posterior chain"
   },
@@ -57,6 +63,7 @@ export const exercises: Exercise[] = [
     name: "Lat Pulldown",
     category: "back",
     muscleGroup: "Lats",
+    muscle_group: "Lats",
     equipment: "Cable Machine",
     description: "Vertical pull for lat development"
   },
@@ -65,6 +72,7 @@ export const exercises: Exercise[] = [
     name: "Barbell Row",
     category: "back",
     muscleGroup: "Back",
+    muscle_group: "Back",
     equipment: "Barbell",
     description: "Horizontal pull for back thickness"
   },
@@ -73,6 +81,7 @@ export const exercises: Exercise[] = [
     name: "Seated Cable Row",
     category: "back",
     muscleGroup: "Back",
+    muscle_group: "Back",
     equipment: "Cable Machine",
     description: "Controlled horizontal pull"
   },
@@ -81,6 +90,7 @@ export const exercises: Exercise[] = [
     name: "Pull-Up",
     category: "back",
     muscleGroup: "Lats",
+    muscle_group: "Lats",
     equipment: "Bodyweight",
     description: "Bodyweight vertical pull"
   },
@@ -91,6 +101,7 @@ export const exercises: Exercise[] = [
     name: "Overhead Press",
     category: "shoulders",
     muscleGroup: "Shoulders",
+    muscle_group: "Shoulders",
     equipment: "Barbell",
     description: "Compound shoulder movement"
   },
@@ -99,6 +110,7 @@ export const exercises: Exercise[] = [
     name: "Lateral Raise",
     category: "shoulders",
     muscleGroup: "Side Delts",
+    muscle_group: "Side Delts",
     equipment: "Dumbbells",
     description: "Isolation for lateral deltoids"
   },
@@ -107,6 +119,7 @@ export const exercises: Exercise[] = [
     name: "Front Raise",
     category: "shoulders",
     muscleGroup: "Front Delts",
+    muscle_group: "Front Delts",
     equipment: "Dumbbells",
     description: "Isolation for anterior deltoids"
   },
@@ -115,6 +128,7 @@ export const exercises: Exercise[] = [
     name: "Face Pull",
     category: "shoulders",
     muscleGroup: "Rear Delts",
+    muscle_group: "Rear Delts",
     equipment: "Cable Machine",
     description: "Rear delt and rotator cuff work"
   },
@@ -123,6 +137,7 @@ export const exercises: Exercise[] = [
     name: "Shoulder Press Machine",
     category: "shoulders",
     muscleGroup: "Shoulders",
+    muscle_group: "Shoulders",
     equipment: "Machine",
     description: "Machine-assisted shoulder press"
   },
@@ -133,6 +148,7 @@ export const exercises: Exercise[] = [
     name: "Barbell Curl",
     category: "arms",
     muscleGroup: "Biceps",
+    muscle_group: "Biceps",
     equipment: "Barbell",
     description: "Classic bicep builder"
   },
@@ -141,6 +157,7 @@ export const exercises: Exercise[] = [
     name: "Tricep Pushdown",
     category: "arms",
     muscleGroup: "Triceps",
+    muscle_group: "Triceps",
     equipment: "Cable Machine",
     description: "Tricep isolation with cable"
   },
@@ -149,6 +166,7 @@ export const exercises: Exercise[] = [
     name: "Hammer Curl",
     category: "arms",
     muscleGroup: "Biceps",
+    muscle_group: "Biceps",
     equipment: "Dumbbells",
     description: "Targets brachialis and biceps"
   },
@@ -157,6 +175,7 @@ export const exercises: Exercise[] = [
     name: "Skull Crusher",
     category: "arms",
     muscleGroup: "Triceps",
+    muscle_group: "Triceps",
     equipment: "EZ Bar",
     description: "Lying tricep extension"
   },
@@ -165,6 +184,7 @@ export const exercises: Exercise[] = [
     name: "Preacher Curl",
     category: "arms",
     muscleGroup: "Biceps",
+    muscle_group: "Biceps",
     equipment: "Machine",
     description: "Isolated bicep curl"
   },
@@ -175,6 +195,7 @@ export const exercises: Exercise[] = [
     name: "Squat",
     category: "legs",
     muscleGroup: "Quads",
+    muscle_group: "Quads",
     equipment: "Barbell",
     description: "King of leg exercises"
   },
@@ -183,6 +204,7 @@ export const exercises: Exercise[] = [
     name: "Leg Press",
     category: "legs",
     muscleGroup: "Quads",
+    muscle_group: "Quads",
     equipment: "Machine",
     description: "Machine compound leg movement"
   },
@@ -191,6 +213,7 @@ export const exercises: Exercise[] = [
     name: "Leg Curl",
     category: "legs",
     muscleGroup: "Hamstrings",
+    muscle_group: "Hamstrings",
     equipment: "Machine",
     description: "Hamstring isolation"
   },
@@ -199,6 +222,7 @@ export const exercises: Exercise[] = [
     name: "Leg Extension",
     category: "legs",
     muscleGroup: "Quads",
+    muscle_group: "Quads",
     equipment: "Machine",
     description: "Quad isolation"
   },
@@ -207,6 +231,7 @@ export const exercises: Exercise[] = [
     name: "Calf Raise",
     category: "legs",
     muscleGroup: "Calves",
+    muscle_group: "Calves",
     equipment: "Machine",
     description: "Calf development"
   },
@@ -215,6 +240,7 @@ export const exercises: Exercise[] = [
     name: "Romanian Deadlift",
     category: "legs",
     muscleGroup: "Hamstrings",
+    muscle_group: "Hamstrings",
     equipment: "Barbell",
     description: "Hamstring and glute focus"
   },
@@ -225,6 +251,7 @@ export const exercises: Exercise[] = [
     name: "Cable Crunch",
     category: "core",
     muscleGroup: "Abs",
+    muscle_group: "Abs",
     equipment: "Cable Machine",
     description: "Weighted ab exercise"
   },
@@ -233,6 +260,7 @@ export const exercises: Exercise[] = [
     name: "Hanging Leg Raise",
     category: "core",
     muscleGroup: "Abs",
+    muscle_group: "Abs",
     equipment: "Bodyweight",
     description: "Lower ab focus"
   },
@@ -241,6 +269,7 @@ export const exercises: Exercise[] = [
     name: "Plank",
     category: "core",
     muscleGroup: "Core",
+    muscle_group: "Core",
     equipment: "Bodyweight",
     description: "Core stability"
   },

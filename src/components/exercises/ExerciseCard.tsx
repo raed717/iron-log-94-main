@@ -1,38 +1,20 @@
-import { Exercise, WorkoutLog } from "@/types/workout";
+import { Exercise } from "@/types/workout";
 import { categoryColors } from "@/data/exercises";
-import { Dumbbell, TrendingUp, Clock } from "lucide-react";
+import { Dumbbell, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useExerciseStats } from "@/hooks/useStats";
 
 interface ExerciseCardProps {
   exercise: Exercise;
-  lastWorkout?: WorkoutLog;
   delay?: number;
 }
 
-const ExerciseCard = ({ exercise, lastWorkout, delay = 0 }: ExerciseCardProps) => {
+const ExerciseCard = ({ exercise, delay = 0 }: ExerciseCardProps) => {
   const navigate = useNavigate();
+  const stats = useExerciseStats(exercise.id);
   const categoryColor = categoryColors[exercise.category] || "hsl(190, 100%, 50%)";
-
-  const lastWeight = lastWorkout 
-    ? Math.max(...lastWorkout.sets.map(s => s.weight))
-    : null;
-
-  const lastReps = lastWorkout
-    ? lastWorkout.sets.reduce((acc, s) => acc + s.reps, 0)
-    : null;
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
 
   return (
     <div 
@@ -55,7 +37,7 @@ const ExerciseCard = ({ exercise, lastWorkout, delay = 0 }: ExerciseCardProps) =
               {exercise.name}
             </h3>
             <p className="text-sm text-muted-foreground capitalize">
-              {exercise.muscleGroup} • {exercise.equipment}
+              {exercise.muscle_group || exercise.muscleGroup} • {exercise.equipment}
             </p>
           </div>
           <div 
@@ -66,20 +48,19 @@ const ExerciseCard = ({ exercise, lastWorkout, delay = 0 }: ExerciseCardProps) =
           </div>
         </div>
 
-        {lastWorkout ? (
+        {stats.lastWorkout !== 'Never' ? (
           <div className="space-y-3 mb-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-lg font-bold text-foreground">{lastWeight} kg</span>
+                <span className="text-lg font-bold text-foreground">{stats.maxWeight} kg</span>
               </div>
               <div className="text-sm text-muted-foreground">
-                {lastWorkout.sets.length} sets • {lastReps} reps
+                {stats.totalSets} sets • {stats.totalReps} reps
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>Last: {formatDate(lastWorkout.date)}</span>
+              <span>Last: {stats.lastWorkout}</span>
             </div>
           </div>
         ) : (
