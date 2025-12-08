@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+
 export default function SignIn() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
@@ -61,10 +62,16 @@ export default function SignIn() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="flex flex-col items-center gap-2">
+          <img
+            src="/assets/img/logo.jpg"
+            alt="Iron-Log Logo"
+            className="w-60 h-60 object-contain"
+          />
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your Iron-Log account</CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (

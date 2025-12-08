@@ -84,7 +84,12 @@ export default function SignUp() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="flex flex-col items-center gap-2">
+          <img
+            src="/assets/img/logo.jpg"
+            alt="Iron-Log Logo"
+            className="w-40 h-40 object-contain"
+          />
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>Join Iron-Log and start tracking your workouts</CardDescription>
         </CardHeader>
