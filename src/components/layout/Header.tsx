@@ -1,7 +1,15 @@
-import { Dumbbell, BarChart3, ClipboardList, Home } from "lucide-react";
+import { Dumbbell, BarChart3, ClipboardList, Home, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const Header = () => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   const navItems = [
     { to: "/", icon: Home, label: "Dashboard" },
     { to: "/exercises", icon: Dumbbell, label: "Exercises" },
@@ -38,6 +46,15 @@ const Header = () => {
                 <span className="font-medium">{item.label}</span>
               </NavLink>
             ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="ml-4 flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </nav>
 
           {/* Mobile nav */}
@@ -55,6 +72,13 @@ const Header = () => {
                   <span className="text-xs font-medium">{item.label}</span>
                 </NavLink>
               ))}
+              <button
+                onClick={handleLogout}
+                className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-all duration-200"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="text-xs font-medium">Logout</span>
+              </button>
             </div>
           </nav>
         </div>
