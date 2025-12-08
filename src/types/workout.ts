@@ -6,6 +6,7 @@ export interface Exercise {
   muscleGroup?: string; // Support both for backwards compatibility
   equipment: string;
   description?: string;
+  img_url?: string;
 }
 
 export type ExerciseCategory = 

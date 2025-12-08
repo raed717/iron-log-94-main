@@ -70,6 +70,13 @@ const ExerciseCard = ({ exercise, delay = 0 }: ExerciseCardProps) => {
           </div>
         )}
 
+        {/*  img if available */}
+        {exercise.img_url && (
+          <div className="mb-4">
+            <img src={exercise.img_url} alt={exercise.name} className="w-full rounded-lg" />
+          </div>
+        )}
+
         <Button 
           variant="outline" 
           className="w-full group-hover:border-primary/50 group-hover:bg-primary/5"
