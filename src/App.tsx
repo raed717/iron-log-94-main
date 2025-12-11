@@ -12,6 +12,7 @@ import Exercises from "./pages/Exercises";
 import Workout from "./pages/Workout";
 import Progress from "./pages/Progress";
 import History from "./pages/History";
+import Programs from "./pages/Programs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,14 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     />
+    <Route
+      path="/programs"
+      element={
+        <ProtectedRoute>
+          <Programs />
+        </ProtectedRoute>
+      }
+    />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
@@ -88,8 +97,8 @@ const App = () => (
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
-        <Sonner 
-          theme="dark" 
+        <Sonner
+          theme="dark"
           position="top-center"
           toastOptions={{
             style: {

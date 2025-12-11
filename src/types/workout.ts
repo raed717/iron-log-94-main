@@ -9,14 +9,14 @@ export interface Exercise {
   img_url?: string;
 }
 
-export type ExerciseCategory = 
-  | 'chest' 
-  | 'back' 
-  | 'shoulders' 
-  | 'arms' 
-  | 'legs' 
-  | 'core' 
-  | 'cardio';
+export type ExerciseCategory =
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "legs"
+  | "core"
+  | "cardio";
 
 export interface WorkoutSet {
   id: string;
@@ -72,3 +72,39 @@ export interface GlobalStats {
   weeklyWorkouts: number[];
   previousWeeklyTotal?: number;
 }
+
+export interface ProgramExercise {
+  id: string;
+  program_id: string;
+  exercise_id: string;
+  order_index: number;
+  sets_target: number;
+  reps_target: number;
+  created_at?: string;
+  exercise?: Exercise;
+}
+
+export interface Program {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  focus_area: string;
+  created_at?: string;
+  updated_at?: string;
+  exercises?: ProgramExercise[];
+}
+
+export type ProgramFocusArea =
+  | "upper body"
+  | "lower body"
+  | "full body"
+  | "push"
+  | "pull"
+  | "legs"
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "cardio"
+  | "custom";

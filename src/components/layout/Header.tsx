@@ -1,4 +1,12 @@
-import { Dumbbell, BarChart3, ClipboardList, Home, LogOut, Clock } from "lucide-react";
+import {
+  Dumbbell,
+  BarChart3,
+  ClipboardList,
+  Home,
+  LogOut,
+  Clock,
+  Zap,
+} from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -13,6 +21,7 @@ const Header = () => {
   const navItems = [
     { to: "/", icon: Home, label: "Dashboard" },
     { to: "/exercises", icon: Dumbbell, label: "Exercises" },
+    { to: "/programs", icon: Zap, label: "Programs" },
     { to: "/workout", icon: ClipboardList, label: "Log Workout" },
     { to: "/history", icon: Clock, label: "History" },
     { to: "/progress", icon: BarChart3, label: "Progress" },
