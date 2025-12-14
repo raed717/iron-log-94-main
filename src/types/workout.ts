@@ -93,6 +93,11 @@ export interface Program {
   created_at?: string;
   updated_at?: string;
   exercises?: ProgramExercise[];
+  shared_by?: {
+    id: string;
+    username: string;
+    full_name?: string;
+  };
 }
 
 export type ProgramFocusArea =

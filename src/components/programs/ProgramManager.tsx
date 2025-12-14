@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useExercises } from "@/hooks/useExercises";
+import { useUsers } from "@/hooks/useUsers";
+import { useProgramShares } from "@/hooks/useProgramShares";
+import { useAuth } from "@/hooks/useAuth";
 import { Program, ProgramFocusArea } from "@/types/workout";
 import {
   Dialog,
@@ -27,7 +30,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trash2, Plus, Edit } from "lucide-react";
+import { Trash2, Plus, Edit, Share2 } from "lucide-react";
 
 const FOCUS_AREAS: ProgramFocusArea[] = [
   "upper body",
@@ -73,6 +76,9 @@ export const ProgramManager = ({
   onProgramCreated,
 }: ProgramManagerProps) => {
   const { exercises } = useExercises();
+  const { users } = useUsers();
+  const { shareProgram } = useProgramShares();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
@@ -87,6 +93,9 @@ export const ProgramManager = ({
     focusArea: "upper body" as ProgramFocusArea,
     description: "",
   });
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [sharingProgram, setSharingProgram] = useState<Program | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   const handleOpenDialog = (program?: Program) => {
     if (program) {
@@ -277,6 +286,75 @@ export const ProgramManager = ({
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Share Program Dialog */}
+        <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+          <DialogContent className="bg-slate-800 border-slate-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Share Program</DialogTitle>
+              <DialogDescription>
+                Share "{sharingProgram?.name}" with another user
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="share-user" className="text-slate-200">
+                  Select User
+                </Label>
+                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue placeholder="Choose a user to share with" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    {users
+                      .filter((user) => user.id !== sharingProgram?.user_id) // Don't show the owner
+                      .map((user) => (
+                        <SelectItem
+                          key={user.id}
+                          value={user.id}
+                          className="text-slate-100"
+                        >
+                          {user.username} {user.full_name && `(${user.full_name})`}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsShareOpen(false);
+                    setSharingProgram(null);
+                    setSelectedUserId("");
+                  }}
+                  className="text-slate-300 border-slate-600"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (sharingProgram && selectedUserId) {
+                      const result = await shareProgram(sharingProgram.id, selectedUserId);
+                      if (result.success) {
+                        setIsShareOpen(false);
+                        setSharingProgram(null);
+                        setSelectedUserId("");
+                        // Could show success toast here
+                      } else {
+                        alert(result.message);
+                      }
+                    }
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={!selectedUserId}
+                >
+                  Share Program
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -370,34 +448,57 @@ export const ProgramManager = ({
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-white">{program.name}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-white">{program.name}</CardTitle>
+                      {program.user_id !== user?.id && program.shared_by && (
+                        <span className="px-2 py-1 text-xs bg-blue-600 text-white rounded-full">
+                          Shared by: {program.shared_by.full_name || program.shared_by.username}
+                        </span>
+                      )}
+                    </div>
                     <CardDescription className="text-slate-400 capitalize">
                       {program.focus_area}
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenDialog(program);
-                      }}
-                      className="text-slate-400 hover:text-white"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(program.id);
-                      }}
-                      className="text-slate-400 hover:text-red-500"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {program.user_id === user?.id && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSharingProgram(program);
+                            setIsShareOpen(true);
+                          }}
+                          className="text-slate-400 hover:text-white"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDialog(program);
+                          }}
+                          className="text-slate-400 hover:text-white"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(program.id);
+                          }}
+                          className="text-slate-400 hover:text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardHeader>

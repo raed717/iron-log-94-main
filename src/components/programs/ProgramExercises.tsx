@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useExercises } from "@/hooks/useExercises";
 import { Program, ProgramExercise } from "@/types/workout";
 import {
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, Plus, GripVertical, Search } from "lucide-react";
+import { Trash2, Plus, GripVertical, Search, Play } from "lucide-react";
 
 interface ProgramExercisesProps {
   program: Program;
@@ -39,6 +40,7 @@ export const ProgramExercises = ({
   addExerciseToProgram,
   removeExerciseFromProgram,
 }: ProgramExercisesProps) => {
+  const navigate = useNavigate();
   const { exercises } = useExercises();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
@@ -235,14 +237,25 @@ export const ProgramExercises = ({
                     {pe.sets_target} sets × {pe.reps_target} reps
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveExercise(pe.id)}
-                  className="text-slate-400 hover:text-red-500 flex-shrink-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(`/workout?exercise=${pe.exercise?.id}`)}
+                    className="text-slate-400 hover:text-green-500"
+                    title="Start this exercise"
+                  >
+                    <Play className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveExercise(pe.id)}
+                    className="text-slate-400 hover:text-red-500"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}

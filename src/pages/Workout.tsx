@@ -112,6 +112,7 @@ const Workout = () => {
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: categoryColors[exercise.category] }}
                         />
+                        <img src={exercise.img_url} alt={exercise.name} className="w-6 h-6" />
                         <span>{exercise.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {exercise.equipment}
@@ -146,6 +147,7 @@ const Workout = () => {
                   <p className="text-sm text-muted-foreground">
                     {selectedExercise.muscleGroup} • {selectedExercise.equipment}
                   </p>
+                  <img src={selectedExercise.img_url} alt={selectedExercise.name} className="w-24 h-24" />
                 </div>
               </div>
 

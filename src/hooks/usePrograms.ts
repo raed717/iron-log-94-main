@@ -20,7 +20,8 @@ export const usePrograms = () => {
         setLoading(true);
         setError(null);
 
-        const { data: programsData, error: programsError } = await supabase
+        // Fetch owned programs
+        const { data: ownedPrograms, error: ownedError } = await supabase
           .from("programs")
           .select(
             `
@@ -33,19 +34,64 @@ export const usePrograms = () => {
             updated_at
           `
           )
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
+          .eq("user_id", user.id);
 
-        if (programsError) throw programsError;
+        if (ownedError) throw ownedError;
 
-        if (programsData) {
-          const programsWithExercises = await Promise.all(
-            programsData.map(async (program) => {
-              const { data: exercisesData, error: exercisesError } =
-                await supabase
-                  .from("program_exercises")
-                  .select(
-                    `
+        // Fetch shared program IDs with sharer info
+        const { data: sharedProgramIds, error: sharedError } = await supabase
+          .from("program_shares")
+          .select(`
+            program_id,
+            shared_by:shared_by_user_id (
+              id,
+              username,
+              full_name
+            )
+          `)
+          .eq("shared_with_user_id", user.id);
+
+        if (sharedError) throw sharedError;
+
+        let sharedPrograms: any[] = [];
+        if (sharedProgramIds && sharedProgramIds.length > 0) {
+          const ids = sharedProgramIds.map(s => s.program_id);
+          const { data: sharedData, error: sharedProgramsError } = await supabase
+            .from("programs")
+            .select(
+              `
+              id,
+              user_id,
+              name,
+              description,
+              focus_area,
+              created_at,
+              updated_at
+            `
+            )
+            .in("id", ids);
+
+          if (sharedProgramsError) throw sharedProgramsError;
+          
+          // Combine programs with sharer info
+          sharedPrograms = (sharedData || []).map(program => {
+            const shareInfo = sharedProgramIds.find(s => s.program_id === program.id);
+            return {
+              ...program,
+              shared_by: shareInfo?.shared_by
+            };
+          });
+        }
+
+        const allPrograms = [...(ownedPrograms || []), ...(sharedPrograms || [])];
+
+        const programsWithExercises = await Promise.all(
+          allPrograms.map(async (program) => {
+            const { data: exercisesData, error: exercisesError } =
+              await supabase
+                .from("program_exercises")
+                .select(
+                  `
                   id,
                   program_id,
                   exercise_id,
@@ -54,39 +100,38 @@ export const usePrograms = () => {
                   reps_target,
                   created_at
                 `
-                  )
-                  .eq("program_id", program.id)
-                  .order("order_index", { ascending: true });
+                )
+                .eq("program_id", program.id)
+                .order("order_index", { ascending: true });
 
-              if (exercisesError) throw exercisesError;
+            if (exercisesError) throw exercisesError;
 
-              const { data: exercises, error: exError } = await supabase
-                .from("exercises")
-                .select("*")
-                .in("id", exercisesData?.map((e) => e.exercise_id) || []);
+            const { data: exercises, error: exError } = await supabase
+              .from("exercises")
+              .select("*")
+              .in("id", exercisesData?.map((e) => e.exercise_id) || []);
 
-              if (exError) throw exError;
+            if (exError) throw exError;
 
-              const exercisesMap = new Map(
-                exercises?.map((e) => [e.id, e]) || []
-              );
+            const exercisesMap = new Map(
+              exercises?.map((e) => [e.id, e]) || []
+            );
 
-              const programExercises: ProgramExercise[] = (
-                exercisesData || []
-              ).map((pe) => ({
-                ...pe,
-                exercise: exercisesMap.get(pe.exercise_id),
-              }));
+            const programExercises: ProgramExercise[] = (
+              exercisesData || []
+            ).map((pe) => ({
+              ...pe,
+              exercise: exercisesMap.get(pe.exercise_id),
+            }));
 
-              return {
-                ...program,
-                exercises: programExercises,
-              };
-            })
-          );
+            return {
+              ...program,
+              exercises: programExercises,
+            };
+          })
+        );
 
-          setPrograms(programsWithExercises);
-        }
+        setPrograms(programsWithExercises);
       } catch (err) {
         console.error("Error fetching programs:", err);
         setError(

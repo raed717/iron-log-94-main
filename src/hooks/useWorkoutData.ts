@@ -68,7 +68,48 @@ export function useWorkoutSessions() {
     fetchSessions();
   }, [user]);
 
-  return { sessions, loading, error };
+  const refetch = () => {
+    // We can just rely on the effect if we had a dependency that changes, 
+    // but here we want to manually trigger re-fetch.
+    // simpler to just extract the fetch logic or use a counter.
+    // Let's just re-run the fetching logic.
+    // A better pattern for a simple hook:
+    const fetchSessions = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('workout_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('session_date', { ascending: false });
+        
+        if (error) throw error;
+        setSessions(data || []);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch workout sessions';
+        setError(errorMessage);
+        console.error('Error fetching workout sessions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSessions();
+  };
+
+  return { sessions, loading, error, refetch };
+}
+
+export async function updateSessionName(sessionId: string, newName: string) {
+  const { data, error } = await supabase
+    .from('workout_sessions')
+    .update({ session_name: newName })
+    .eq('id', sessionId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export function useWorkoutLogs(sessionId?: string) {
