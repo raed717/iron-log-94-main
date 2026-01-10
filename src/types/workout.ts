@@ -90,6 +90,7 @@ export interface Program {
   name: string;
   description?: string;
   focus_area: string;
+  level?: ProgramLevel;
   created_at?: string;
   updated_at?: string;
   exercises?: ProgramExercise[];
@@ -113,3 +114,5 @@ export type ProgramFocusArea =
   | "arms"
   | "cardio"
   | "custom";
+
+export type ProgramLevel = "beginner" | "intermediate" | "advanced";

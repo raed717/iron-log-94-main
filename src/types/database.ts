@@ -147,6 +147,7 @@ export type Database = {
           description: string | null
           focus_area: string
           id: string
+          level: string | null
           name: string
           updated_at: string | null
           user_id: string
@@ -156,6 +157,7 @@ export type Database = {
           description?: string | null
           focus_area: string
           id?: string
+          level?: string | null
           name: string
           updated_at?: string | null
           user_id: string
@@ -165,6 +167,7 @@ export type Database = {
           description?: string | null
           focus_area?: string
           id?: string
+          level?: string | null
           name?: string
           updated_at?: string | null
           user_id?: string

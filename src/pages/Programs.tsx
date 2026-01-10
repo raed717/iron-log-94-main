@@ -68,6 +68,16 @@ export default function Programs() {
                     {selectedProgram.focus_area}
                   </p>
                 </div>
+                {selectedProgram.level && (
+                  <div>
+                    <h3 className="text-sm font-medium text-slate-300">
+                      Level
+                    </h3>
+                    <p className="text-white capitalize">
+                      {selectedProgram.level}
+                    </p>
+                  </div>
+                )}
                 {selectedProgram.description && (
                   <div>
                     <h3 className="text-sm font-medium text-slate-300">

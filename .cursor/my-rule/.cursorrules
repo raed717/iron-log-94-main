@@ -126,7 +126,8 @@ src/
 Key tables:
 - **users**: User accounts with roles (user, coach, owner, admin)
 - **exercises**: Exercise library with categories (chest, back, shoulders, arms, legs, core, cardio)
-- **programs**: User-created workout programs
+- **programs**: User-created workout programs (with name, description, focus_area, level)
+  - **level**: Optional field - "beginner", "intermediate", or "advanced" (nullable)
 - **program_exercises**: Exercises within programs (with order_index, sets_target, reps_target)
 - **program_shares**: Sharing programs between users
 - **workout_sessions**: Individual workout sessions
@@ -135,6 +136,8 @@ Key tables:
 
 ### Type Definitions
 - Domain types in `src/types/workout.ts`: Exercise, WorkoutSet, WorkoutSession, Program, etc.
+  - **ProgramLevel**: Type alias for "beginner" | "intermediate" | "advanced"
+  - **Program**: Interface includes optional `level?: ProgramLevel` field
 - Database types in `src/types/database.ts`: Generated from Supabase schema
 - Some types support both snake_case and camelCase for backwards compatibility (e.g., `muscle_group` and `muscleGroup`)
 
@@ -274,6 +277,13 @@ Key tables:
 - Use `useAuth()` hook to get current user
 - User ID is required for most Supabase queries
 - Check `if (!user) return;` before data fetching
+
+### Creating/Updating a Program
+- Use `usePrograms` hook with `createProgram` or `updateProgram` functions
+- Required fields: `name`, `focusArea` (from ProgramFocusArea type)
+- Optional fields: `description`, `level` (from ProgramLevel type: "beginner", "intermediate", "advanced")
+- Example: `createProgram(name, focusArea, description?, level?)`
+- Programs support filtering by level in ProgramManager component
 
 ### Sharing a Program
 - Use `useProgramShares` hook

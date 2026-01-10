@@ -30,6 +30,7 @@ export const usePrograms = () => {
             name,
             description,
             focus_area,
+            level,
             created_at,
             updated_at
           `
@@ -65,6 +66,7 @@ export const usePrograms = () => {
               name,
               description,
               focus_area,
+              level,
               created_at,
               updated_at
             `
@@ -148,7 +150,8 @@ export const usePrograms = () => {
   const createProgram = async (
     name: string,
     focusArea: string,
-    description?: string
+    description?: string,
+    level?: string
   ): Promise<Program | null> => {
     if (!user?.id) return null;
 
@@ -161,6 +164,7 @@ export const usePrograms = () => {
             name,
             description,
             focus_area: focusArea,
+            level: level || null,
           },
         ])
         .select()
@@ -186,7 +190,8 @@ export const usePrograms = () => {
     id: string,
     name: string,
     focusArea: string,
-    description?: string
+    description?: string,
+    level?: string
   ): Promise<Program | null> => {
     try {
       const { data, error } = await supabase
@@ -195,6 +200,7 @@ export const usePrograms = () => {
           name,
           focus_area: focusArea,
           description,
+          level: level || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)

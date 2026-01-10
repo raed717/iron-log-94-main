@@ -3,7 +3,7 @@ import { useExercises } from "@/hooks/useExercises";
 import { useUsers } from "@/hooks/useUsers";
 import { useProgramShares } from "@/hooks/useProgramShares";
 import { useAuth } from "@/hooks/useAuth";
-import { Program, ProgramFocusArea } from "@/types/workout";
+import { Program, ProgramFocusArea, ProgramLevel } from "@/types/workout";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +47,8 @@ const FOCUS_AREAS: ProgramFocusArea[] = [
   "custom",
 ];
 
+const PROGRAM_LEVELS: ProgramLevel[] = ["beginner", "intermediate", "advanced"];
+
 interface ProgramManagerProps {
   programs: Program[];
   loading: boolean;
@@ -54,14 +56,16 @@ interface ProgramManagerProps {
   createProgram: (
     name: string,
     focusArea: string,
-    description?: string
+    description?: string,
+    level?: string
   ) => Promise<Program | null>;
   deleteProgram: (id: string) => Promise<boolean>;
   updateProgram: (
     id: string,
     name: string,
     focusArea: string,
-    description?: string
+    description?: string,
+    level?: string
   ) => Promise<Program | null>;
   onProgramCreated?: (program: Program) => void;
 }
@@ -86,11 +90,13 @@ export const ProgramManager = ({
   const [focusFilter, setFocusFilter] = useState<ProgramFocusArea | "all">(
     "all"
   );
+  const [levelFilter, setLevelFilter] = useState<ProgramLevel | "all">("all");
   const [minExercises, setMinExercises] = useState<string>("");
   const [maxExercises, setMaxExercises] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     focusArea: "upper body" as ProgramFocusArea,
+    level: "" as ProgramLevel | "",
     description: "",
   });
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -104,6 +110,7 @@ export const ProgramManager = ({
       setFormData({
         name: program.name,
         focusArea: program.focus_area as ProgramFocusArea,
+        level: (program.level as ProgramLevel) || "",
         description: program.description || "",
       });
     } else {
@@ -112,6 +119,7 @@ export const ProgramManager = ({
       setFormData({
         name: "",
         focusArea: "upper body" as ProgramFocusArea,
+        level: "",
         description: "",
       });
     }
@@ -123,6 +131,7 @@ export const ProgramManager = ({
     setFormData({
       name: "",
       focusArea: "upper body" as ProgramFocusArea,
+      level: "",
       description: "",
     });
   };
@@ -138,13 +147,15 @@ export const ProgramManager = ({
         editingProgram.id,
         formData.name,
         formData.focusArea,
-        formData.description
+        formData.description,
+        formData.level || undefined
       );
     } else {
       const newProgram = await createProgram(
         formData.name,
         formData.focusArea,
-        formData.description
+        formData.description,
+        formData.level || undefined
       );
       if (newProgram && onProgramCreated) {
         onProgramCreated(newProgram);
@@ -175,13 +186,16 @@ export const ProgramManager = ({
     const matchesFocus =
       focusFilter === "all" || program.focus_area === focusFilter;
 
+    const matchesLevel =
+      levelFilter === "all" || program.level === levelFilter;
+
     const exerciseCount = program.exercises?.length || 0;
     const min = minExercises ? parseInt(minExercises, 10) : null;
     const max = maxExercises ? parseInt(maxExercises, 10) : null;
     const matchesMin = min === null || exerciseCount >= min;
     const matchesMax = max === null || exerciseCount <= max;
 
-    return matchesSearch && matchesFocus && matchesMin && matchesMax;
+    return matchesSearch && matchesFocus && matchesLevel && matchesMin && matchesMax;
   });
 
   return (
@@ -251,6 +265,52 @@ export const ProgramManager = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="level" className="text-slate-200">
+                  Level
+                </Label>
+                <Select
+                  value={formData.level !== "" ? formData.level : undefined}
+                  onValueChange={(value) => {
+                    if (PROGRAM_LEVELS.includes(value as ProgramLevel)) {
+                      setFormData({
+                        ...formData,
+                        level: value as ProgramLevel,
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue placeholder="Select level (optional)" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    {PROGRAM_LEVELS.map((level) => (
+                      <SelectItem
+                        key={level}
+                        value={level}
+                        className="text-slate-100 capitalize"
+                      >
+                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.level !== "" && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFormData({ ...formData, level: "" as ProgramLevel | "" });
+                    }}
+                    className="mt-2 text-xs text-slate-400 hover:text-slate-200"
+                  >
+                    Clear level
+                  </Button>
+                )}
               </div>
 
               <div>
@@ -357,7 +417,7 @@ export const ProgramManager = ({
         </Dialog>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-5">
         <div className="md:col-span-2">
           <Label htmlFor="search" className="text-slate-200">
             Search
@@ -394,6 +454,35 @@ export const ProgramManager = ({
                   className="text-slate-100 capitalize"
                 >
                   {area}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="level-filter" className="text-slate-200">
+            Level
+          </Label>
+          <Select
+            value={levelFilter}
+            onValueChange={(value) =>
+              setLevelFilter(value as ProgramLevel | "all")
+            }
+          >
+            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+              <SelectValue placeholder="All levels" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-700 border-slate-600">
+              <SelectItem value="all" className="text-slate-100">
+                All levels
+              </SelectItem>
+              {PROGRAM_LEVELS.map((level) => (
+                <SelectItem
+                  key={level}
+                  value={level}
+                  className="text-slate-100 capitalize"
+                >
+                  {level.charAt(0).toUpperCase() + level.slice(1)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -456,9 +545,16 @@ export const ProgramManager = ({
                         </span>
                       )}
                     </div>
-                    <CardDescription className="text-slate-400 capitalize">
-                      {program.focus_area}
-                    </CardDescription>
+                    <div className="flex items-center gap-2">
+                      <CardDescription className="text-slate-400 capitalize">
+                        {program.focus_area}
+                      </CardDescription>
+                      {program.level && (
+                        <span className="px-2 py-1 text-xs bg-slate-700 text-slate-300 rounded-full capitalize">
+                          {program.level}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     {program.user_id === user?.id && (
