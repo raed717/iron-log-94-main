@@ -1,0 +1,289 @@
+# IronLog - Workout Tracking Application
+
+## Project Overview
+IronLog is a React + TypeScript workout tracking application built with Vite. It allows users to track workouts, manage exercise programs, view progress statistics, and share workout programs with other users.
+
+## Tech Stack
+
+### Core Technologies
+- **React 18.3** with TypeScript 5.8
+- **Vite 5.4** as build tool (dev server on port 8080)
+- **React Router 6.30** for routing
+- **Supabase** for backend, authentication, and PostgreSQL database
+- **TanStack Query (React Query) 5.83** for data fetching and caching
+- **Tailwind CSS 3.4** with custom design system
+- **shadcn/ui** components (built on Radix UI primitives)
+
+### Key Libraries
+- **React Hook Form 7.61** + **Zod 3.25** for form validation
+- **date-fns 3.6** for date manipulation
+- **Recharts 2.15** for data visualization
+- **Lucide React** for icons
+- **Sonner** for toast notifications
+- **next-themes** for theme management (dark mode)
+
+## Project Structure
+
+```
+src/
+├── components/          # React components organized by feature
+│   ├── dashboard/      # Dashboard-specific components
+│   ├── exercises/      # Exercise-related components
+│   ├── history/        # Workout history components
+│   ├── layout/         # Layout components (Header, etc.)
+│   ├── programs/       # Program management components
+│   ├── progress/       # Progress tracking components
+│   ├── ui/             # shadcn/ui base components (button, card, etc.)
+│   └── workout/        # Active workout components
+├── context/            # React Context providers
+│   ├── AuthContext.tsx # Authentication context
+│   └── AuthContextType.ts
+├── data/               # Static/mock data
+├── hooks/              # Custom React hooks
+│   ├── useAuth.ts      # Authentication hook
+│   ├── useExercises.ts # Exercise data fetching
+│   ├── usePrograms.ts  # Program management
+│   ├── useStats.ts     # Statistics calculations
+│   ├── useWorkoutData.ts # Workout session data
+│   └── ...             # Other feature hooks
+├── lib/                # Utility functions and configs
+│   ├── supabase.ts     # Supabase client initialization
+│   └── utils.ts        # Utility functions (cn helper, etc.)
+├── pages/              # Page-level components (routes)
+│   ├── Index.tsx       # Dashboard/home page
+│   ├── Exercises.tsx
+│   ├── Workout.tsx
+│   ├── Progress.tsx
+│   ├── History.tsx
+│   ├── Programs.tsx
+│   ├── SignIn.tsx
+│   ├── SignUp.tsx
+│   └── NotFound.tsx
+└── types/              # TypeScript type definitions
+    ├── workout.ts      # Workout-related types
+    └── database.ts     # Supabase-generated database types
+```
+
+## Coding Patterns and Conventions
+
+### Path Aliases
+- Always use `@/` prefix for imports from `src/`
+- Example: `import { useAuth } from '@/hooks/useAuth'`
+- Configured in `vite.config.ts` and `tsconfig.json`
+
+### Component Patterns
+- Use functional components with TypeScript
+- Define prop interfaces above the component
+- Use the `cn()` utility from `@/lib/utils` for conditional classNames (combines clsx + tailwind-merge)
+- Prefer named exports for components
+- Components use Tailwind CSS with dark mode (class-based via `darkMode: ["class"]`)
+
+### Styling Guidelines
+- **Theme**: Dark mode by default with HSL color variables
+- **Fonts**: 
+  - Display font: "Bebas Neue" (for headings, large numbers)
+  - Body font: "Inter" (for regular text)
+- **Color System**: Uses CSS variables for theming (defined in `index.css`)
+- **Animations**: Custom animations defined in `tailwind.config.ts`:
+  - `fade-in`, `slide-in-right`, `scale-in`, `number-tick`
+- Always use `cn()` helper for merging Tailwind classes
+- Follow shadcn/ui component patterns for consistency
+
+### Custom Hooks Pattern
+- Hooks are stored in `src/hooks/` directory
+- Use hooks for data fetching from Supabase
+- Common pattern:
+  ```typescript
+  export function useFeatureName() {
+    const [data, setData] = useState<Type[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { user } = useAuth(); // If auth required
+    
+    useEffect(() => {
+      // Fetch logic
+    }, [dependencies]);
+    
+    return { data, loading, error, refetch };
+  }
+  ```
+- Always handle loading and error states
+- Use `useAuth()` hook to get current user
+- Return refetch function when data might need refreshing
+
+### Supabase Integration
+- Import Supabase client from `@/lib/supabase`
+- Use TypeScript types from `@/types/database.ts` for database operations
+- Type helpers:
+  - `Tables<'table_name'>` for row types
+  - `TablesInsert<'table_name'>` for insert types
+  - `TablesUpdate<'table_name'>` for update types
+- Always check for errors: `if (error) throw error;`
+- Use Supabase query builder with `.select()`, `.eq()`, `.order()`, etc.
+- For nested relations, use Supabase's embedded select syntax
+
+### Database Schema
+Key tables:
+- **users**: User accounts with roles (user, coach, owner, admin)
+- **exercises**: Exercise library with categories (chest, back, shoulders, arms, legs, core, cardio)
+- **programs**: User-created workout programs
+- **program_exercises**: Exercises within programs (with order_index, sets_target, reps_target)
+- **program_shares**: Sharing programs between users
+- **workout_sessions**: Individual workout sessions
+- **workout_logs**: Exercise entries within a session
+- **workout_sets**: Individual sets (weight, reps, set_number, is_completed)
+
+### Type Definitions
+- Domain types in `src/types/workout.ts`: Exercise, WorkoutSet, WorkoutSession, Program, etc.
+- Database types in `src/types/database.ts`: Generated from Supabase schema
+- Some types support both snake_case and camelCase for backwards compatibility (e.g., `muscle_group` and `muscleGroup`)
+
+### Routing and Authentication
+- Protected routes wrapped in `<ProtectedRoute>` component
+- Routes defined in `App.tsx`:
+  - `/` - Dashboard (protected)
+  - `/exercises` - Exercise library (protected)
+  - `/workout` - Active workout (protected)
+  - `/progress` - Progress tracking (protected)
+  - `/history` - Workout history (protected)
+  - `/programs` - Program management (protected)
+  - `/signin` - Sign in page
+  - `/signup` - Sign up page
+- `useAuth()` hook provides: `{ user, loading, signIn, signUp, signOut }`
+- Auth context provided at app level in `AuthProvider`
+
+### Forms
+- Use React Hook Form with Zod validation
+- Form schemas defined with Zod
+- Use `@hookform/resolvers/zod` for form validation
+- shadcn/ui form components: Form, FormField, FormItem, FormLabel, FormControl, FormMessage
+
+### State Management
+- React Query for server state (TanStack Query)
+- React Context for auth state (AuthContext)
+- Local state with useState for component-specific state
+- No global state management library (Redux, Zustand, etc.)
+
+### Error Handling
+- Use try-catch blocks in async functions
+- Set error state in hooks: `setError(error.message)`
+- Display errors using toast notifications (Sonner)
+- Console.error for debugging
+
+### Date Handling
+- Use `date-fns` for all date operations
+- Format dates consistently across the app
+- Store dates as ISO strings in database
+
+## TypeScript Configuration
+
+### Compiler Options
+- `noImplicitAny: false` - Allows implicit any (relaxed typing)
+- `strictNullChecks: false` - Relaxed null checking
+- `noUnusedLocals: false` - Allows unused locals
+- `noUnusedParameters: false` - Allows unused parameters
+- `allowJs: true` - Allows JavaScript files
+- Path alias `@/*` maps to `./src/*`
+
+### Type Safety Guidelines
+- Define interfaces for component props
+- Use database types from `@/types/database.ts` when working with Supabase
+- Use domain types from `@/types/workout.ts` for business logic
+- Prefer explicit types over `any`, but project has relaxed settings
+
+## Development Guidelines
+
+### Adding New Features
+1. Create types in `src/types/workout.ts` if needed
+2. Create custom hook in `src/hooks/` for data fetching
+3. Create components in appropriate `src/components/` subdirectory
+4. Add route in `App.tsx` if it's a new page
+5. Update navigation if needed
+
+### Component Naming
+- Components: PascalCase (e.g., `StatCard.tsx`)
+- Hooks: camelCase with `use` prefix (e.g., `useAuth.ts`)
+- Utilities: camelCase (e.g., `utils.ts`)
+- Types: PascalCase for interfaces/types (e.g., `Exercise`, `WorkoutSession`)
+
+### Import Order
+1. React and React-related imports
+2. Third-party libraries
+3. Internal imports (using `@/` alias)
+4. Relative imports
+5. Type imports (can be grouped with related imports)
+
+### Environment Variables
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+- Access via `import.meta.env.VITE_*`
+
+### Build and Development
+- `npm run dev` - Start dev server (port 8080)
+- `npm run build` - Production build
+- `npm run build:dev` - Development build
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
+
+## UI/UX Patterns
+
+### Notifications
+- Use Sonner toast for notifications: `<Toaster />` and `toast()` from `sonner`
+- Toast theme: dark mode with custom styling
+
+### Loading States
+- Show loading spinners or skeleton loaders
+- Use `loading` state from hooks
+- Simple loading text: "Loading..." with appropriate styling
+
+### Empty States
+- Provide helpful empty state messages
+- Include actions to create/fetch data
+
+### Responsive Design
+- Mobile-first approach
+- Use Tailwind responsive breakpoints
+- Test on various screen sizes
+
+## Best Practices
+
+1. **Always check authentication** before making Supabase queries that require a user
+2. **Handle loading and error states** in all data-fetching hooks
+3. **Use TypeScript types** from the types directory instead of inline types when possible
+4. **Follow existing patterns** - look at similar components/hooks before creating new ones
+5. **Use shadcn/ui components** - don't create custom UI components when shadcn/ui has equivalents
+6. **Keep components small** - split large components into smaller, focused components
+7. **Use React Query** for server state that benefits from caching and refetching
+8. **Maintain consistency** - follow existing code style and patterns
+9. **Test error cases** - handle edge cases and errors gracefully
+10. **Use semantic HTML** - maintain accessibility standards
+
+## Common Tasks
+
+### Adding a New Exercise
+- Exercises are stored in Supabase `exercises` table
+- Categories: chest, back, shoulders, arms, legs, core, cardio
+- Required fields: name, category, muscle_group, equipment
+
+### Creating a Workout Session
+- Use `useSaveWorkout` hook
+- Structure: Session → Logs (exercises) → Sets (weight/reps)
+- All linked via foreign keys in database
+
+### Fetching User Data
+- Use `useAuth()` hook to get current user
+- User ID is required for most Supabase queries
+- Check `if (!user) return;` before data fetching
+
+### Sharing a Program
+- Use `useProgramShares` hook
+- Programs can be shared between users via `program_shares` table
+- Includes relationship to original creator
+
+## Notes
+
+- Project uses relaxed TypeScript settings - some `any` types may be acceptable
+- Database uses snake_case for column names (converted to camelCase in some types)
+- Dark theme is the default and primary theme
+- Font "Bebas Neue" is used for display/heading text for a bold, fitness-app aesthetic
+- All routes except `/signin` and `/signup` require authentication

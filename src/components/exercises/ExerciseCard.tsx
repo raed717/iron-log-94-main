@@ -1,20 +1,31 @@
+import { memo } from "react";
 import { Exercise } from "@/types/workout";
 import { categoryColors } from "@/data/categories";
 import { Dumbbell, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useExerciseStats } from "@/hooks/useStats";
+import { ExerciseStats } from "@/hooks/useStats";
 
 interface ExerciseCardProps {
   exercise: Exercise;
   delay?: number;
+  stats?: ExerciseStats;
 }
 
-const ExerciseCard = ({ exercise, delay = 0 }: ExerciseCardProps) => {
+const ExerciseCard = memo(({ exercise, delay = 0, stats }: ExerciseCardProps) => {
   const navigate = useNavigate();
-  const stats = useExerciseStats(exercise.id);
   const categoryColor = categoryColors[exercise.category] || "hsl(190, 100%, 50%)";
+  
+  // Default stats if not provided
+  const exerciseStats: ExerciseStats = stats || {
+    exerciseId: exercise.id,
+    totalSets: 0,
+    totalReps: 0,
+    maxWeight: 0,
+    avgWeight: 0,
+    lastWorkout: 'Never',
+  };
 
   return (
     <div 
@@ -48,19 +59,19 @@ const ExerciseCard = ({ exercise, delay = 0 }: ExerciseCardProps) => {
           </div>
         </div>
 
-        {stats.lastWorkout !== 'Never' ? (
+        {exerciseStats.lastWorkout !== 'Never' ? (
           <div className="space-y-3 mb-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-lg font-bold text-foreground">{stats.maxWeight} kg</span>
+                <span className="text-lg font-bold text-foreground">{exerciseStats.maxWeight} kg</span>
               </div>
               <div className="text-sm text-muted-foreground">
-                {stats.totalSets} sets • {stats.totalReps} reps
+                {exerciseStats.totalSets} sets • {exerciseStats.totalReps} reps
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>Last: {stats.lastWorkout}</span>
+              <span>Last: {exerciseStats.lastWorkout}</span>
             </div>
           </div>
         ) : (
@@ -87,6 +98,8 @@ const ExerciseCard = ({ exercise, delay = 0 }: ExerciseCardProps) => {
       </div>
     </div>
   );
-};
+});
+
+ExerciseCard.displayName = 'ExerciseCard';
 
 export default ExerciseCard;
