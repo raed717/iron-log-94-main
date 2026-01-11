@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import ExerciseCard from "@/components/exercises/ExerciseCard";
-import CategoryFilter from "@/components/exercises/CategoryFilter";
+// import CategoryFilter from "@/components/exercises/CategoryFilter";
+import EquipmentFilter, { EquipmentType } from "@/components/exercises/EquipmentFilter";
+import MuscleGroupFilter, { MuscleGroupType } from "@/components/exercises/MuscleGroupFilter";
 import { useExercises } from "@/hooks/useExercises";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useExerciseStatsBatch } from "@/hooks/useExerciseStatsBatch";
-import { ExerciseCategory } from "@/types/workout";
+// import { ExerciseCategory } from "@/types/workout";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,33 +16,94 @@ const ITEMS_PER_PAGE = 24; // 24 exercises per page (8 rows of 3 on desktop)
 
 const Exercises = () => {
   const { exercises, loading } = useExercises();
-  const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | "all">("all");
+  // const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | "all">("all");
+  const [selectedEquipment, setSelectedEquipment] = useState<Set<EquipmentType>>(new Set());
+  const [selectedMuscleGroups, setSelectedMuscleGroups] = useState<Set<MuscleGroupType>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Debounce search query to reduce filtering operations
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const categories: ExerciseCategory[] = ["chest", "back", "shoulders", "arms", "legs", "core"];
+  // const categories: ExerciseCategory[] = ["chest", "back", "shoulders", "arms", "legs", "core"];
 
-  // Filter exercises based on category and search
+  // Convert Sets to sorted arrays for dependency tracking
+  const selectedMuscleGroupsArray = useMemo(() => 
+    Array.from(selectedMuscleGroups).sort(), 
+    [selectedMuscleGroups]
+  );
+
+  const selectedEquipmentArray = useMemo(() => 
+    Array.from(selectedEquipment).sort(), 
+    [selectedEquipment]
+  );
+
+  // Filter exercises based on equipment, muscle groups, and search
   const filteredExercises = useMemo(() => {
     return exercises.filter((exercise) => {
-      const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory;
+      // Handle equipment filtering: check if ALL selected equipment are included in comma-separated equipment string
+      // If no equipment is selected, show all (default "all equipment" state)
+      let matchesEquipment = true;
+      if (selectedEquipment.size > 0) {
+        const equipmentList = exercise.equipment
+          .split(",")
+          .map(eq => eq.trim());
+        matchesEquipment = selectedEquipmentArray.every(selectedEq => 
+          equipmentList.includes(selectedEq)
+        );
+      }
+      
+      // Handle muscle group filtering: check if ALL selected muscle groups are included in comma-separated muscle_group string
+      let matchesMuscleGroup = true;
+      if (selectedMuscleGroups.size > 0) {
+        const muscleGroupList = exercise.muscle_group
+          .split(",")
+          .map(mg => mg.trim());
+        matchesMuscleGroup = selectedMuscleGroupsArray.every(selectedMg => 
+          muscleGroupList.includes(selectedMg)
+        );
+      }
+      
       const matchesSearch = exercise.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
         exercise.muscle_group.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesEquipment && matchesMuscleGroup && matchesSearch;
     });
-  }, [exercises, selectedCategory, debouncedSearchQuery]);
+  }, [exercises, selectedEquipmentArray, selectedMuscleGroupsArray, debouncedSearchQuery]);
 
   // Calculate pagination
   const totalPages = Math.max(1, Math.ceil(filteredExercises.length / ITEMS_PER_PAGE));
-  
+
+  // Handle muscle group selection toggle
+  const handleMuscleGroupToggle = (muscleGroup: MuscleGroupType) => {
+    setSelectedMuscleGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(muscleGroup)) {
+        newSet.delete(muscleGroup);
+      } else {
+        newSet.add(muscleGroup);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle equipment selection toggle
+  const handleEquipmentToggle = (equipment: EquipmentType) => {
+    setSelectedEquipment(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(equipment)) {
+        newSet.delete(equipment);
+      } else {
+        newSet.add(equipment);
+      }
+      return newSet;
+    });
+  };
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, debouncedSearchQuery]);
-  
+  }, [selectedEquipmentArray, selectedMuscleGroupsArray, debouncedSearchQuery]);
+
   // Ensure current page doesn't exceed total pages (safeguard)
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
@@ -92,6 +155,7 @@ const Exercises = () => {
 
         {/* Filters */}
         <div className="space-y-4 mb-8">
+          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -102,11 +166,24 @@ const Exercises = () => {
             />
           </div>
 
-          <CategoryFilter
+          {/* Muscle Groups Filter */}
+          <MuscleGroupFilter
+            selected={selectedMuscleGroups}
+            onSelect={handleMuscleGroupToggle}
+          />
+
+          {/* Equipment Filter - Last */}
+          <EquipmentFilter
+            selected={selectedEquipment}
+            onSelect={handleEquipmentToggle}
+          />
+
+          {/* Category Filter - Commented out */}
+          {/* <CategoryFilter
             categories={categories}
             selected={selectedCategory}
             onSelect={setSelectedCategory}
-          />
+          /> */}
         </div>
 
         {/* Exercise Grid */}
@@ -140,7 +217,7 @@ const Exercises = () => {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            
+
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 Page {safeCurrentPage} of {totalPages}
@@ -149,7 +226,7 @@ const Exercises = () => {
                 ({filteredExercises.length} exercises)
               </span>
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
