@@ -7,15 +7,18 @@ import {
   Clock,
   Zap,
   Menu,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
   const { signOut } = useAuth();
+  const { isAdmin } = useUserProfile();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -29,6 +32,7 @@ const Header = () => {
     // { to: "/workout", icon: ClipboardList, label: "Log Workout" },
     { to: "/history", icon: Clock, label: "History" },
     { to: "/progress", icon: BarChart3, label: "Progress" },
+    ...(isAdmin ? [{ to: "/admin", icon: Shield, label: "Admin" }] : []),
   ];
 
   return (

@@ -3,8 +3,9 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import WorkoutLogger from "@/components/workout/WorkoutLogger";
 import { useExercises } from "@/hooks/useExercises";
+import { useExerciseHistory } from "@/hooks/useWorkoutData";
 import { Exercise } from "@/types/workout";
-import { ChevronLeft, Dumbbell } from "lucide-react";
+import { ChevronLeft, Dumbbell, History, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -21,6 +22,7 @@ const Workout = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const { exercises } = useExercises();
+  const { history } = useExerciseHistory(selectedExercise?.id);
 
   useEffect(() => {
     // Check for exercise in URL params and set once exercises are loaded
@@ -112,7 +114,7 @@ const Workout = () => {
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: categoryColors[exercise.category] }}
                         />
-                        <img src={exercise.img_url} alt={exercise.name} className="w-6 h-6" />
+                        <img src={exercise.img_url} alt={exercise.name} className="w-8 h-8" />
                         <span>{exercise.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {exercise.equipment}
@@ -157,6 +159,55 @@ const Workout = () => {
                 onSaved={handleWorkoutSaved}
               />
             </div>
+
+            {/* Recent History */}
+            {history.length > 0 && (
+              <div className="opacity-0 animate-fade-in" style={{ animationDelay: "300ms" }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <History className="h-5 w-5 text-mutted-foreground" />
+                  <h3 className="text-lg font-semibold">Recently Logged</h3>
+                </div>
+
+                <div className="space-y-4">
+                  {history.map((log) => (
+                    <div
+                      key={log.id}
+                      className="p-4 rounded-xl border border-border bg-card/50"
+                    >
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {new Date(log.created_at).toLocaleDateString(undefined, {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {log.sets?.map((set) => (
+                          <div
+                            key={set.id}
+                            className="flex items-center justify-between text-sm p-2 rounded-lg bg-secondary/30"
+                          >
+                            <span className="font-medium text-muted-foreground">
+                              Set {set.set_number}
+                            </span>
+                            <div className="flex items-center gap-4">
+                              <span className="font-semibold">{set.weight} kg</span>
+                              <span className="text-muted-foreground">x</span>
+                              <span className="font-semibold">{set.reps} reps</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-16 opacity-0 animate-fade-in" style={{ animationDelay: "200ms" }}>
@@ -167,9 +218,10 @@ const Workout = () => {
               Select an exercise above to start logging
             </p>
           </div>
-        )}
-      </main>
-    </div>
+        )
+        }
+      </main >
+    </div >
   );
 };
 

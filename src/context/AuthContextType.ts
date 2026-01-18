@@ -1,5 +1,9 @@
 import { createContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
+import { Tables } from '@/types/database';
+
+export type UserProfile = Tables<'users'>;
+export type UserRole = 'user' | 'coach' | 'owner' | 'admin';
 
 export interface AuthContextType {
   user: User | null;

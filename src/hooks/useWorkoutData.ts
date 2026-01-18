@@ -191,3 +191,50 @@ export function useWorkoutSets(logId?: string) {
 
   return { sets, loading, error };
 }
+
+export function useExerciseHistory(exerciseId?: string, limit: number = 5) {
+  const { user } = useAuth();
+  const [history, setHistory] = useState<WorkoutLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || !exerciseId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchHistory = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('workout_logs')
+          .select('*, sets:workout_sets(*)')
+          .eq('user_id', user.id)
+          .eq('exercise_id', exerciseId)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        
+        if (error) throw error;
+        
+        // Sort sets by set_number for each log
+        const sortedData = data?.map(log => ({
+          ...log,
+          sets: log.sets?.sort((a: WorkoutSet, b: WorkoutSet) => a.set_number - b.set_number)
+        })) || [];
+
+        setHistory(sortedData);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch exercise history';
+        setError(errorMessage);
+        console.error('Error fetching exercise history:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [user, exerciseId, limit]);
+
+  return { history, loading, error };
+}
